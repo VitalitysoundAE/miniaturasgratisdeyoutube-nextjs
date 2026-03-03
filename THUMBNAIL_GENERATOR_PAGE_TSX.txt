@@ -1,0 +1,852 @@
+'use client';
+
+import { useState, useRef } from 'react';
+
+// Styles list
+const styles = [
+  { id: '', name: 'None' },
+  { id: 'dramatic', name: 'Dramatic' },
+  { id: 'minimalist', name: 'Minimalist' },
+  { id: 'explosive', name: 'Explosive' },
+  { id: 'professional', name: 'Professional' },
+  { id: 'neon', name: 'Neon' },
+  { id: 'cinematic', name: 'Cinematic' },
+  { id: 'gaming', name: 'Gaming' },
+  { id: 'retro', name: 'Retro' },
+  { id: 'tech', name: 'Tech' },
+  { id: 'cartoon', name: 'Cartoon' },
+  { id: 'horror', name: 'Horror' },
+  { id: 'anime', name: 'Anime' },
+  { id: 'vintage', name: 'Vintage' },
+  { id: 'graffiti', name: 'Graffiti' },
+  { id: 'scifi', name: 'Sci-Fi' },
+  { id: 'popart', name: 'Pop Art' },
+  { id: 'darkmode', name: 'Dark Mode' },
+  { id: 'pastel', name: 'Pastel' },
+  { id: 'cyberpunk', name: 'Cyberpunk' },
+  { id: 'handdrawn', name: 'Hand Drawn' },
+  { id: '3d', name: '3D Render' },
+  { id: 'watercolor', name: 'Watercolor' },
+];
+
+// Background categories
+const backgroundCategories = {
+  textures: [
+    { id: '', name: 'None' },
+    { id: 'marble', name: 'Marble' },
+    { id: 'wood', name: 'Wood' },
+    { id: 'concrete', name: 'Concrete' },
+    { id: 'fabric', name: 'Fabric' },
+    { id: 'paper', name: 'Paper' },
+    { id: 'metal', name: 'Metal' },
+    { id: 'brick', name: 'Brick' },
+    { id: 'leather', name: 'Leather' },
+    { id: 'sand', name: 'Sand' },
+    { id: 'stone', name: 'Stone' },
+  ],
+  realistic: [
+    { id: '', name: 'None' },
+    { id: 'sky', name: 'Sky' },
+    { id: 'forest', name: 'Forest' },
+    { id: 'city', name: 'City' },
+    { id: 'mountain', name: 'Mountain' },
+    { id: 'ocean', name: 'Ocean' },
+    { id: 'sunset', name: 'Sunset' },
+    { id: 'night', name: 'Night' },
+    { id: 'studio', name: 'Studio' },
+    { id: 'urban', name: 'Urban' },
+  ],
+  illustrated: [
+    { id: '', name: 'None' },
+    { id: 'geometric', name: 'Geometric' },
+    { id: 'waves', name: 'Waves' },
+    { id: 'particles', name: 'Particles' },
+    { id: 'lines', name: 'Lines' },
+    { id: 'dots', name: 'Dots' },
+    { id: 'gradients', name: 'Gradients' },
+    { id: 'shapes', name: 'Shapes' },
+    { id: 'splatter', name: 'Splatter' },
+    { id: 'low-poly', name: 'Low Poly' },
+  ],
+  colors: [
+    { id: '', name: 'None' },
+    { id: 'solid-black', name: 'Black' },
+    { id: 'solid-white', name: 'White' },
+    { id: 'gradient-purple', name: 'Purple' },
+    { id: 'gradient-blue', name: 'Blue' },
+    { id: 'gradient-pink', name: 'Pink' },
+    { id: 'gradient-green', name: 'Green' },
+    { id: 'gradient-orange', name: 'Orange' },
+    { id: 'gradient-teal', name: 'Teal' },
+    { id: 'gradient-rainbow', name: 'Rainbow' },
+  ],
+  abstract: [
+    { id: '', name: 'None' },
+    { id: 'liquid', name: 'Liquid' },
+    { id: 'smoke', name: 'Smoke' },
+    { id: 'fractal', name: 'Fractal' },
+    { id: 'plasma', name: 'Plasma' },
+    { id: 'crystal', name: 'Crystal' },
+    { id: 'nebula', name: 'Nebula' },
+    { id: 'fire', name: 'Fire' },
+    { id: 'electric', name: 'Electric' },
+    { id: 'organic', name: 'Organic' },
+  ],
+  viral: [
+    { id: '', name: 'None' },
+    { id: 'gaming-setup', name: 'Gaming' },
+    { id: 'money-stack', name: 'Money' },
+    { id: 'explosion-effect', name: 'Explosion' },
+    { id: 'fire-background', name: 'Fire' },
+    { id: 'tech-circuit', name: 'Tech' },
+    { id: 'neon-city', name: 'Neon City' },
+    { id: 'space-stars', name: 'Space' },
+    { id: 'lightning', name: 'Lightning' },
+    { id: 'confetti', name: 'Confetti' },
+  ],
+};
+
+// 18 Custom colors
+const customColors = [
+  { id: 'red', hex: '#EF4444', name: 'Red' },
+  { id: 'orange', hex: '#F97316', name: 'Orange' },
+  { id: 'yellow', hex: '#EAB308', name: 'Yellow' },
+  { id: 'green', hex: '#22C55E', name: 'Green' },
+  { id: 'teal', hex: '#14B8A6', name: 'Teal' },
+  { id: 'blue', hex: '#3B82F6', name: 'Blue' },
+  { id: 'indigo', hex: '#6366F1', name: 'Indigo' },
+  { id: 'purple', hex: '#A855F7', name: 'Purple' },
+  { id: 'pink', hex: '#EC4899', name: 'Pink' },
+  { id: 'white', hex: '#FFFFFF', name: 'White' },
+  { id: 'black', hex: '#000000', name: 'Black' },
+  { id: 'gray', hex: '#6B7280', name: 'Gray' },
+  { id: 'brown', hex: '#A16207', name: 'Brown' },
+  { id: 'cyan', hex: '#06B6D4', name: 'Cyan' },
+  { id: 'magenta', hex: '#D946EF', name: 'Magenta' },
+  { id: 'lime', hex: '#84CC16', name: 'Lime' },
+  { id: 'gold', hex: '#FBBF24', name: 'Gold' },
+  { id: 'silver', hex: '#C0C0C0', name: 'Silver' },
+];
+
+// Fonts
+const fonts = [
+  { id: '', name: 'None' },
+  { id: 'impact', name: 'Impact' },
+  { id: 'bebas', name: 'Bebas' },
+  { id: 'oswald', name: 'Oswald' },
+  { id: 'montserrat', name: 'Montserrat' },
+  { id: 'roboto', name: 'Roboto' },
+  { id: 'playfair', name: 'Playfair' },
+];
+
+// Font sizes
+const fontSizes = [
+  { id: 'small', name: 'S' },
+  { id: 'medium', name: 'M' },
+  { id: 'large', name: 'L' },
+];
+
+// Viral formats
+const viralFormats = [
+  { id: '', name: 'None' },
+  { id: 'reaction', name: 'Reaction' },
+  { id: 'comparison', name: 'Comparison' },
+  { id: 'numbered', name: 'Numbered' },
+  { id: 'arrow', name: 'Arrow' },
+  { id: 'circle', name: 'Circle' },
+  { id: 'split', name: 'Split' },
+  { id: 'zoom', name: 'Zoom' },
+  { id: 'question', name: 'Question' },
+  { id: 'shocked', name: 'Shocked' },
+  { id: 'money', name: 'Money' },
+  { id: 'warning', name: 'Warning' },
+  { id: 'secret', name: 'Secret' },
+  { id: 'trending', name: 'Trending' },
+  { id: 'new', name: 'NEW' },
+  { id: 'giveaway', name: 'Giveaway' },
+];
+
+// Character types
+const characterTypes = [
+  { id: '', name: 'None' },
+  { id: 'human-male', name: 'Human Male' },
+  { id: 'human-female', name: 'Human Female' },
+  { id: 'cartoon-male', name: 'Cartoon Male' },
+  { id: 'cartoon-female', name: 'Cartoon Female' },
+  { id: 'anime-male', name: 'Anime Male' },
+  { id: 'anime-female', name: 'Anime Female' },
+  { id: 'animal-dog', name: 'Dog' },
+  { id: 'animal-cat', name: 'Cat' },
+  { id: 'robot', name: 'Robot' },
+  { id: 'alien', name: 'Alien' },
+  { id: 'fantasy', name: 'Fantasy' },
+];
+
+// Character config options
+const characterConfig = {
+  pose: ['standing', 'sitting', 'pointing', 'thinking', 'excited'],
+  expression: ['happy', 'surprised', 'thinking', 'shocked', 'confident'],
+  outfit: ['casual', 'formal', 'sporty', 'gaming', 'tech'],
+  accessories: ['none', 'glasses', 'headphones', 'hat', 'watch'],
+};
+
+type SourceMode = 'generate' | 'upload' | 'youtube';
+type BgCategory = keyof typeof backgroundCategories;
+
+export default function Home() {
+  // Core state
+  const [isPro, setIsPro] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('');
+
+  // Source mode
+  const [sourceMode, setSourceMode] = useState<SourceMode>('generate');
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [youtubeFrames, setYoutubeFrames] = useState<string[]>([]);
+  const [selectedFrame, setSelectedFrame] = useState<string | null>(null);
+  const [isLoadingFrames, setIsLoadingFrames] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pro features state
+  const [bgCategory, setBgCategory] = useState<BgCategory>('textures');
+  const [selectedBackground, setSelectedBackground] = useState('');
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedFont, setSelectedFont] = useState('');
+  const [selectedFontSize, setSelectedFontSize] = useState('medium');
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [formatConfig, setFormatConfig] = useState<Record<string, string>>({});
+
+  // Character state
+  const [characterEnabled, setCharacterEnabled] = useState(false);
+  const [selectedCharacterType, setSelectedCharacterType] = useState('');
+  const [characterDetails, setCharacterDetails] = useState({
+    pose: '',
+    expression: '',
+    outfit: '',
+    accessories: '',
+    hairColor: '#000000',
+  });
+
+  // Expanded sections
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
+  // Generation state
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Limits
+  const maxTitleChars = isPro ? 50 : 30;
+  const maxDescChars = isPro ? 500 : 200;
+
+  // File upload handler
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUploadedImage(event.target?.result as string);
+        setGeneratedImage(null);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // YouTube video ID extractor
+  const getVideoId = (url: string): string | null => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  // Extract YouTube frames
+  const extractFrames = async () => {
+    const videoId = getVideoId(youtubeUrl);
+    if (!videoId) {
+      setError('Invalid YouTube URL');
+      return;
+    }
+
+    setIsLoadingFrames(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/youtube-frames', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId, title, description }),
+      });
+      const data = await res.json();
+      if (data.success && data.frames?.length > 0) {
+        setYoutubeFrames(data.frames);
+        setSelectedFrame(null);
+      } else {
+        setError('Could not extract frames');
+      }
+    } catch {
+      setError('Failed to extract frames');
+    } finally {
+      setIsLoadingFrames(false);
+    }
+  };
+
+  // Toggle color selection
+  const toggleColor = (hex: string) => {
+    if (selectedColors.includes(hex)) {
+      setSelectedColors(selectedColors.filter(c => c !== hex));
+    } else if (selectedColors.length < 3) {
+      setSelectedColors([...selectedColors, hex]);
+    }
+  };
+
+  // Generate thumbnail
+  const generateThumbnail = async () => {
+    if (!title.trim()) return;
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/generate-thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description,
+          style: selectedStyle,
+          isPro,
+          background: selectedBackground,
+          backgroundCategory: bgCategory,
+          colors: selectedColors,
+          font: selectedFont,
+          fontSize: selectedFontSize,
+          format: selectedFormat,
+          formatConfig,
+          character: characterEnabled ? { type: selectedCharacterType, ...characterDetails } : undefined,
+          sourceMode,
+          sourceImage: sourceMode === 'upload' ? uploadedImage : selectedFrame,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setGeneratedImage(data.image);
+      } else {
+        setError(data.error || 'Generation failed');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Download image
+  const downloadImage = () => {
+    if (!generatedImage) return;
+    const link = document.createElement('a');
+    link.href = generatedImage;
+    link.download = `thumbnail-${title.slice(0, 20)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Check if can generate
+  const canGenerate = title.trim() &&
+    (sourceMode === 'generate' ||
+      (sourceMode === 'upload' && uploadedImage) ||
+      (sourceMode === 'youtube' && selectedFrame));
+
+  // Styles
+  const cardStyle: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: '12px',
+    padding: '16px',
+    marginBottom: '16px',
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px',
+    borderRadius: '8px',
+    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(255,255,255,0.05)',
+    color: 'white',
+    fontSize: '16px',
+    outline: 'none',
+  };
+
+  const buttonStyle = (active: boolean, color = '#8b5cf6'): React.CSSProperties => ({
+    padding: '10px 16px',
+    borderRadius: '8px',
+    border: 'none',
+    background: active ? color : 'rgba(255,255,255,0.1)',
+    color: active ? 'white' : 'rgba(255,255,255,0.7)',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: active ? '600' : '400',
+    transition: 'all 0.2s',
+  });
+
+  const sectionTitleStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '12px',
+    fontWeight: '600',
+    fontSize: '16px',
+    color: 'white',
+  };
+
+  const stepBadgeStyle: React.CSSProperties = {
+    width: '24px',
+    height: '24px',
+    borderRadius: '50%',
+    background: '#8b5cf6',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    color: 'white',
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #0a0a0a, #1a1a1a)', color: 'white', padding: '20px' }}>
+      <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        {/* Header */}
+        <header style={{ marginBottom: '24px', textAlign: 'center', paddingBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px' }}>
+            🎨 Thumbnail Generator
+          </h1>
+          <p style={{ color: '#888', marginBottom: '16px' }}>
+            AI-powered YouTube Thumbnail Creator
+          </p>
+          {/* Free/Pro Toggle */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '8px 16px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <span style={{ color: !isPro ? 'white' : '#666', fontWeight: !isPro ? '600' : '400' }}>Free</span>
+            <button
+              onClick={() => setIsPro(!isPro)}
+              style={{
+                width: '48px',
+                height: '24px',
+                borderRadius: '12px',
+                border: 'none',
+                background: isPro ? '#f59e0b' : '#666',
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'background 0.3s',
+              }}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: 'white',
+                position: 'absolute',
+                top: '2px',
+                left: isPro ? '26px' : '2px',
+                transition: 'left 0.3s',
+              }} />
+            </button>
+            <span style={{ color: isPro ? '#fbbf24' : '#666', fontWeight: isPro ? '600' : '400' }}>
+              {isPro ? '👑 Pro' : 'Pro'}
+            </span>
+          </div>
+        </header>
+
+        {/* Step 1: Title */}
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>
+            <span style={stepBadgeStyle}>1</span>
+            Video Title
+          </div>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value.slice(0, maxTitleChars))}
+              placeholder="Enter your video title..."
+              style={inputStyle}
+            />
+            <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666', fontSize: '14px' }}>
+              {title.length}/{maxTitleChars}
+            </span>
+          </div>
+        </div>
+
+        {/* Step 2: Description */}
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>
+            <span style={stepBadgeStyle}>2</span>
+            Description
+          </div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value.slice(0, maxDescChars))}
+            placeholder="Describe your thumbnail..."
+            style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+          />
+          <div style={{ textAlign: 'right', color: '#666', fontSize: '12px', marginTop: '4px' }}>
+            {description.length}/{maxDescChars}
+          </div>
+        </div>
+
+        {/* Step 3: Source */}
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>
+            <span style={stepBadgeStyle}>3</span>
+            Image Source
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+            <button onClick={() => { setSourceMode('generate'); setGeneratedImage(null); }} style={buttonStyle(sourceMode === 'generate')}>
+              ✨ Generate
+            </button>
+            <button onClick={() => { setSourceMode('upload'); setGeneratedImage(null); }} style={buttonStyle(sourceMode === 'upload')}>
+              📤 Upload
+            </button>
+            <button onClick={() => { setSourceMode('youtube'); setGeneratedImage(null); }} style={buttonStyle(sourceMode === 'youtube')}>
+              📺 YouTube
+            </button>
+          </div>
+
+          {/* Upload */}
+          {sourceMode === 'upload' && (
+            <div>
+              <input type="file" accept="image/*" onChange={handleFileUpload} ref={fileInputRef} style={{ display: 'none' }} />
+              <button onClick={() => fileInputRef.current?.click()} style={{ ...inputStyle, borderStyle: 'dashed', cursor: 'pointer', textAlign: 'center' }}>
+                {uploadedImage ? '📤 Change Image' : '📤 Click to Upload Image'}
+              </button>
+              {uploadedImage && (
+                <div style={{ marginTop: '12px', position: 'relative' }}>
+                  <img src={uploadedImage} alt="Uploaded" style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <button onClick={() => setUploadedImage(null)} style={{ position: 'absolute', top: '8px', right: '8px', padding: '6px 12px', borderRadius: '6px', border: 'none', background: '#ef4444', color: 'white', cursor: 'pointer' }}>
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* YouTube */}
+          {sourceMode === 'youtube' && (
+            <div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  placeholder="https://youtube.com/watch?v=..."
+                  style={inputStyle}
+                />
+                <button onClick={extractFrames} disabled={!youtubeUrl || isLoadingFrames} style={{ ...buttonStyle(false, '#ef4444'), padding: '12px 16px', opacity: !youtubeUrl ? 0.5 : 1 }}>
+                  {isLoadingFrames ? '⏳' : '🎬'}
+                </button>
+              </div>
+              {youtubeFrames.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginTop: '12px' }}>
+                  {youtubeFrames.map((frame, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedFrame(frame)}
+                      style={{
+                        border: selectedFrame === frame ? '2px solid #f59e0b' : '2px solid rgba(255,255,255,0.2)',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        padding: 0,
+                        cursor: 'pointer',
+                        background: 'transparent',
+                      }}
+                    >
+                      <img src={frame} alt={`Frame ${i + 1}`} style={{ width: '100%', display: 'block' }} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Step 4: Style */}
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>
+            <span style={stepBadgeStyle}>4</span>
+            Style
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {styles.map((style) => (
+              <button key={style.id} onClick={() => setSelectedStyle(style.id)} style={buttonStyle(selectedStyle === style.id)}>
+                {style.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Pro Features */}
+        {isPro && (
+          <>
+            {/* Background */}
+            <div style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={sectionTitleStyle}>
+                  <span style={{ ...stepBadgeStyle, background: '#f59e0b' }}>5</span>
+                  Background
+                </div>
+                <button onClick={() => setExpandedSection(expandedSection === 'background' ? null : 'background')} style={{ ...buttonStyle(false), padding: '6px 12px', fontSize: '12px' }}>
+                  {expandedSection === 'background' ? '▼ Hide' : '▶ Show'}
+                </button>
+              </div>
+              {expandedSection === 'background' && (
+                <div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                    {Object.keys(backgroundCategories).map((cat) => (
+                      <button key={cat} onClick={() => setBgCategory(cat as BgCategory)} style={buttonStyle(bgCategory === cat, '#f59e0b')}>
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {backgroundCategories[bgCategory].map((bg) => (
+                      <button key={bg.id || bg.name} onClick={() => setSelectedBackground(bg.id)} style={buttonStyle(selectedBackground === bg.id, '#f59e0b')}>
+                        {bg.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Colors */}
+            <div style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={sectionTitleStyle}>
+                  <span style={{ ...stepBadgeStyle, background: '#f59e0b' }}>6</span>
+                  Custom Colors (max 3)
+                </div>
+                <button onClick={() => setExpandedSection(expandedSection === 'colors' ? null : 'colors')} style={{ ...buttonStyle(false), padding: '6px 12px', fontSize: '12px' }}>
+                  {expandedSection === 'colors' ? '▼ Hide' : '▶ Show'}
+                </button>
+              </div>
+              {expandedSection === 'colors' && (
+                <div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {customColors.map((color) => (
+                      <button
+                        key={color.id}
+                        onClick={() => toggleColor(color.hex)}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '8px',
+                          border: selectedColors.includes(color.hex) ? '3px solid #f59e0b' : '2px solid rgba(255,255,255,0.3)',
+                          background: color.hex,
+                          cursor: 'pointer',
+                          position: 'relative',
+                          transform: selectedColors.includes(color.hex) ? 'scale(1.1)' : 'scale(1)',
+                          transition: 'all 0.2s',
+                        }}
+                        title={color.name}
+                      >
+                        {selectedColors.includes(color.hex) && (
+                          <span style={{ color: ['#FFFFFF', '#FBBF24', '#EAB308', '#84CC16', '#C0C0C0', '#14B8A6', '#06B6D4'].includes(color.hex) ? 'black' : 'white', fontSize: '16px' }}>✓</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedColors.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
+                      {selectedColors.map((hex, i) => (
+                        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.1)', fontSize: '12px' }}>
+                          <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: hex, display: 'inline-block' }} />
+                          {hex}
+                          <button onClick={() => toggleColor(hex)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}>✕</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Font */}
+            <div style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={sectionTitleStyle}>
+                  <span style={{ ...stepBadgeStyle, background: '#f59e0b' }}>7</span>
+                  Font
+                </div>
+                <button onClick={() => setExpandedSection(expandedSection === 'font' ? null : 'font')} style={{ ...buttonStyle(false), padding: '6px 12px', fontSize: '12px' }}>
+                  {expandedSection === 'font' ? '▼ Hide' : '▶ Show'}
+                </button>
+              </div>
+              {expandedSection === 'font' && (
+                <div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                    {fonts.map((font) => (
+                      <button key={font.id} onClick={() => setSelectedFont(font.id)} style={buttonStyle(selectedFont === font.id, '#f59e0b')}>
+                        {font.name}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedFont && (
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span style={{ color: '#888', fontSize: '14px' }}>Size:</span>
+                      {fontSizes.map((size) => (
+                        <button key={size.id} onClick={() => setSelectedFontSize(size.id)} style={{ ...buttonStyle(selectedFontSize === size.id, '#f59e0b'), width: '36px', height: '36px', padding: 0 }}>
+                          {size.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {title && selectedFont && (
+                    <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', textAlign: 'center' }}>
+                      <span style={{ fontSize: selectedFontSize === 'small' ? '18px' : selectedFontSize === 'large' ? '24px' : '20px', fontWeight: selectedFont === 'impact' ? '900' : '600', textTransform: selectedFont === 'impact' ? 'uppercase' : 'none' }}>
+                        {title}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Viral Format */}
+            <div style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={sectionTitleStyle}>
+                  <span style={{ ...stepBadgeStyle, background: '#f59e0b' }}>8</span>
+                  Viral Format
+                </div>
+                <button onClick={() => setExpandedSection(expandedSection === 'format' ? null : 'format')} style={{ ...buttonStyle(false), padding: '6px 12px', fontSize: '12px' }}>
+                  {expandedSection === 'format' ? '▼ Hide' : '▶ Show'}
+                </button>
+              </div>
+              {expandedSection === 'format' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {viralFormats.map((format) => (
+                    <button key={format.id} onClick={() => setSelectedFormat(format.id)} style={buttonStyle(selectedFormat === format.id, '#f59e0b')}>
+                      {format.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Character */}
+            <div style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={sectionTitleStyle}>
+                  <span style={{ ...stepBadgeStyle, background: '#f59e0b' }}>9</span>
+                  Character
+                </div>
+                <button onClick={() => setExpandedSection(expandedSection === 'character' ? null : 'character')} style={{ ...buttonStyle(false), padding: '6px 12px', fontSize: '12px' }}>
+                  {expandedSection === 'character' ? '▼ Hide' : '▶ Show'}
+                </button>
+              </div>
+              {expandedSection === 'character' && (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <button onClick={() => setCharacterEnabled(!characterEnabled)} style={{ ...buttonStyle(characterEnabled, '#22c55e'), padding: '8px 16px' }}>
+                      {characterEnabled ? '✓ Enabled' : 'Enable Character'}
+                    </button>
+                  </div>
+                  {characterEnabled && (
+                    <>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                        {characterTypes.map((char) => (
+                          <button key={char.id} onClick={() => setSelectedCharacterType(char.id)} style={buttonStyle(selectedCharacterType === char.id, '#f59e0b')}>
+                            {char.name}
+                          </button>
+                        ))}
+                      </div>
+                      {selectedCharacterType && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                          {Object.entries(characterConfig).map(([key, options]) => (
+                            <div key={key}>
+                              <label style={{ display: 'block', color: '#888', fontSize: '12px', marginBottom: '4px', textTransform: 'capitalize' }}>{key}</label>
+                              <select
+                                value={characterDetails[key as keyof typeof characterDetails] as string}
+                                onChange={(e) => setCharacterDetails({ ...characterDetails, [key]: e.target.value })}
+                                style={{ ...inputStyle, padding: '8px', fontSize: '14px' }}
+                              >
+                                <option value="">Select...</option>
+                                {options.map((opt) => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            </div>
+                          ))}
+                          <div>
+                            <label style={{ display: 'block', color: '#888', fontSize: '12px', marginBottom: '4px' }}>Hair Color</label>
+                            <input
+                              type="color"
+                              value={characterDetails.hairColor}
+                              onChange={(e) => setCharacterDetails({ ...characterDetails, hairColor: e.target.value })}
+                              style={{ width: '100%', height: '36px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div style={{ padding: '12px', marginBottom: '16px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#fca5a5' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Generate Button */}
+        <button
+          onClick={generateThumbnail}
+          disabled={!canGenerate || isGenerating}
+          style={{
+            width: '100%',
+            padding: '16px',
+            borderRadius: '12px',
+            border: 'none',
+            background: isGenerating
+              ? '#666'
+              : isPro
+                ? 'linear-gradient(to right, #f59e0b, #ea580c)'
+                : 'linear-gradient(to right, #8b5cf6, #ec4899)',
+            color: 'white',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            cursor: isGenerating || !canGenerate ? 'not-allowed' : 'pointer',
+            opacity: !canGenerate ? 0.5 : 1,
+            marginBottom: '16px',
+          }}
+        >
+          {isGenerating ? '⏳ Generating...' : '✨ Generate Thumbnail'}
+        </button>
+
+        {/* Generated Image */}
+        {generatedImage && (
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>Generated Thumbnail</div>
+            <img src={generatedImage} alt="Generated thumbnail" style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />
+            <button onClick={downloadImage} style={{ width: '100%', marginTop: '12px', padding: '12px', borderRadius: '8px', border: 'none', background: '#22c55e', color: 'white', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
+              📥 Download PNG
+            </button>
+          </div>
+        )}
+
+        {/* Footer Notice */}
+        <div style={{ marginTop: '24px', padding: '16px', borderRadius: '12px', background: 'linear-gradient(to right, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.2))', border: '1px solid rgba(139, 92, 246, 0.3)', textAlign: 'center' }}>
+          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)' }}>
+            💜 PRO features are <strong>FREE</strong> for everyone! Enjoy all premium features without limits.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
